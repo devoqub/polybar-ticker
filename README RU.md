@@ -6,9 +6,11 @@
 доступ, удобство использования и простоту настройки.
 Поддерживает вывод в нескольких вариантах \[Обычный, Упрощенный(только цена), Отображение всех валют, Скрыто] так же можно сделать свой.
 
-![photo_2025-01-19_18-40-33](https://github.com/user-attachments/assets/a734ca2c-06b2-4e7b-92c5-b203980be1dc)
-![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
 
+Пример:
+
+![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
+<video src="https://github.com/user-attachments/assets/7306b5c1-7203-43a7-974c-3bbda063e987"> </video>
 
 
 ## Установка
