@@ -6,12 +6,17 @@ Module for Polybar — a cryptocurrency tracker that integrates cryptocurrency d
 quick access, ease of use, and simple configuration.
 Supports output in several formats [Regular, Simplified (only price), Display all currencies, Hidden]. You can also create your own.
 
+Examples
+
 ![photo_2025-01-19_18-40-33](https://github.com/user-attachments/assets/a734ca2c-06b2-4e7b-92c5-b203980be1dc)
 ![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
 
 
 
 ## Installation
+Dependencies:
+- curl_cffi
+- psutil
 
 Python 3.12 was used during development.
 
