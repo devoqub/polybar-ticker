@@ -71,7 +71,7 @@ Example:
 ```python
 # To add a new cryptocurrency, you need to add the websocket connection link from the site below
 # Pairs can be found here:
-# https://docs.gemini.com/websocket-api/?utm_source=otiebis-zaebal#all-supported-symbols
+# https://docs.gemini.com/websocket-api/#all-supported-symbols
 tickers = [
     # ("TITLE", "wss://link"),
     ("BTC", "wss://api.gemini.com/v1/marketdata/btcusd"),
