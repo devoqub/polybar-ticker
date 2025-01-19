@@ -2,9 +2,11 @@
 
 # Polybar Ticker
 
-The simple module for [Polybar](https://github.com/polybar/polybar) — a cryptocurrency tracker that integrates cryptocurrency data directly into the panel. It provides
-quick access, ease of use, and simple configuration.
-polybar-ticker works asynchronously and supports output in several formats [Regular, Simplified (only price), Display all currencies, Hidden]. You can also create your own.
+The simple module for [Polybar](https://github.com/polybar/polybar) — a cryptocurrency tracker that integrates cryptocurrency data directly into the panel. 
+
+It provides quick access, ease of use, and simple configuration.
+
+The module works asynchronously and supports output in several formats [Regular, Simplified (only price), Display all currencies, Hidden]. You can also create your own.
 
 Examples
 
