@@ -1,4 +1,4 @@
-Русский | English | Japanese
+Русский | [English](https://github.com/devoqub/polybar-ticker/blob/main/README.md) | [Japanese](https://github.com/devoqub/polybar-ticker/blob/main/README%20JP.md)
 
 # Polybar Ticker
 
