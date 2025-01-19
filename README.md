@@ -6,7 +6,7 @@ The simple module for [Polybar](https://github.com/polybar/polybar) — a crypto
 
 It provides quick access, ease of use, and simple configuration.
 
-The module works asynchronously and supports output in several formats [Regular, Simplified (only price), Display all currencies, Hidden]. You can also create your own.
+The module works asynchronously and supports output in several formats [Default, Simple (only price), All currencies, Hidden]. You can also create your own.
 
 Examples
 
