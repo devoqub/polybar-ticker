@@ -1,6 +1,6 @@
 「申し訳ありませんが、翻訳が正確でない場合があります」
 
-Русский | English | Japanese
+[Русский](https://github.com/devoqub/polybar-ticker/blob/main/README%20RU.md) | [English](https://github.com/devoqub/polybar-ticker/blob/main/README.md) | Japanese
 
 # Polybar Ticker
 
