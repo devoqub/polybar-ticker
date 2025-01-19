@@ -1,0 +1,6 @@
+certifi==2024.12.14
+cffi==1.17.1
+curl_cffi==0.7.4
+psutil==5.9.8
+pycparser==2.22
+typing_extensions==4.12.2
