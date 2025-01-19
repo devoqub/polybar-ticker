@@ -4,6 +4,12 @@
 
 Модуль для Polybar — криптотрекер, интегрирующий данные о криптовалютах непосредственно в панель. Обеспечивает быстрый
 доступ, удобство использования и простоту настройки.
+Поддерживает вывод в нескольких вариантах \[Обычный, Упрощенный(только цена), Отображение всех валют, Скрыто] так же можно сделать свой.
+
+![photo_2025-01-19_18-40-33](https://github.com/user-attachments/assets/a734ca2c-06b2-4e7b-92c5-b203980be1dc)
+![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
+
+
 
 ## Установка
 
@@ -36,6 +42,21 @@ click-right = echo "prev" | nc 127.0.0.1 14888
 ```
 
 Готово! Осталось разместить модуль в панели.
+
+## Добавление своих криптовалют
+Для добавления новых криптовалют в систему, необходимо внести изменения в конфигурационный файл config.py.
+Пример:
+```python
+# Чтобы добавить новую крипту вам нужно добавить ссылку на вебсокет соединение с сайта ниже
+# Найти связки можно тут:
+# https://docs.gemini.com/websocket-api/?utm_source=otiebis-zaebal#all-supported-symbols
+tickers = [
+    # ("TITLE", "wss://link"),
+    ("BTC", "wss://api.gemini.com/v1/marketdata/btcusd"),
+    ("ETH", "wss://api.gemini.com/v1/marketdata/ethusd"),
+    ("LTC", "wss://api.gemini.com/v1/marketdata/ltcusd"),
+]
+```
 
 ## Changelog
 ...
