@@ -4,6 +4,12 @@
 
 Module for Polybar — a cryptocurrency tracker that integrates cryptocurrency data directly into the panel. It provides
 quick access, ease of use, and simple configuration.
+Supports output in several formats [Regular, Simplified (only price), Display all currencies, Hidden]. You can also create your own.
+
+![photo_2025-01-19_18-40-33](https://github.com/user-attachments/assets/a734ca2c-06b2-4e7b-92c5-b203980be1dc)
+![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
+
+
 
 ## Installation
 
@@ -36,6 +42,29 @@ click-right = echo "prev" | nc 127.0.0.1 14888
 ```
 
 Done! Now you just need to place the module in the panel.
+
+
+## Adding Your Own Cryptocurrencies
+The addition is made through the config.py file. You need to add a tuple where the first element is the name of the cryptocurrency (as it will be displayed in polybar), and the link to the pair.
+
+You can find the pairs here: https://docs.gemini.com/websocket-api/#all-supported-symbols 
+
+Or you can find them by trial and error :)
+
+
+Example:
+```python
+# To add a new cryptocurrency, you need to add the websocket connection link from the site below
+# Pairs can be found here:
+# https://docs.gemini.com/websocket-api/?utm_source=otiebis-zaebal#all-supported-symbols
+tickers = [
+    # ("TITLE", "wss://link"),
+    ("BTC", "wss://api.gemini.com/v1/marketdata/btcusd"),
+    ("ETH", "wss://api.gemini.com/v1/marketdata/ethusd"),
+    ("LTC", "wss://api.gemini.com/v1/marketdata/ltcusd"),
+]
+```
+
 
 ## Changelog
 ...
