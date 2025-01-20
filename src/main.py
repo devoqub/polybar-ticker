@@ -2,7 +2,6 @@
 import asyncio
 import os
 import argparse
-from multiprocessing.managers import Value
 
 import utils
 import config
@@ -50,15 +49,15 @@ async def main():
         utils.kill_process_by_port(config.SERVER_PORT)
         utils.create_pid_file()
 
+    if not config.tickers:
+        raise ValueError("The list of connections (tickers) cannot be empty!!")
+
     # Create a list of connections (tasks) for each pair "coin name - URL".
     # Each item in the list is a WSConnection object initialized with the specified parameters.
     tasks = [
         WSConnection(coin_name=coin_name, url=url, show=True)
         for coin_name, url in config.tickers
     ]
-
-    if not tasks:
-        raise ValueError("The list of connections (tickers) cannot be empty!!")
 
     # Define the list of message handlers,
     # these handlers are used to manage ticker display

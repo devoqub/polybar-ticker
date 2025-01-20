@@ -6,6 +6,7 @@ tickers = [
     ("BTC", "wss://api.gemini.com/v1/marketdata/btcusd"),
     ("ETH", "wss://api.gemini.com/v1/marketdata/ethusd"),
     ("LTC", "wss://api.gemini.com/v1/marketdata/ltcusd"),
+    ("DOGE", "wss://api.gemini.com/v1/marketdata/dogeusd"),
 ]
 
 # Constants

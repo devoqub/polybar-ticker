@@ -76,6 +76,7 @@ class WSConnection:
             except asyncio.CancelledError:
                 print("Task was cancelled")
             except Exception as e:
+                print("Connection failed", flush=True)
                 os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
 
     async def __on_message(self, message: str):
