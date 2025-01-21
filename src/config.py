@@ -13,6 +13,10 @@ tickers = [
 BLINK_KAOMOJI: str = "┻━┻︵ヽ(`Д´)ﾉ︵┻━┻"
 TEMP_PID_PATH = "/tmp/polybar-ticker.pid"
 
+# Выбор используемой библиотеки для работы с WebSocket
+# По умолчанию aiohttp, но можно использовать curl_cffi
+METHOD_USE = "aiohttp"
+
 SERVER_PORT: int = 14888
 UPDATE_TIME: float | int = 0.64
 BLINK_KAOMOJI_REPEAT_TIME: float | int = 0.05

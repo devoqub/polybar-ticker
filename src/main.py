@@ -8,6 +8,7 @@ import config
 import actions
 import message_handlers as mh
 from connections import (
+    AioHTTPWSConnection,
     WSConnection,
     ConnectionManager,
 )
@@ -36,6 +37,18 @@ def init_parser():
     return parser
 
 
+def get_ws_connection_class(method: str):
+    methods = {
+        "aiohttp": AioHTTPWSConnection,
+        "curl_cffi": WSConnection
+    }
+
+    if method in methods:
+        return methods[method]
+    else:
+        raise ValueError(f"Unknown method {method}")
+
+
 async def main():
     # Initialize and get arguments
     args = init_parser().parse_args()
@@ -54,8 +67,10 @@ async def main():
 
     # Create a list of connections (tasks) for each pair "coin name - URL".
     # Each item in the list is a WSConnection object initialized with the specified parameters.
+
+    ws_connection_class = get_ws_connection_class(config.METHOD_USE)
     tasks = [
-        WSConnection(coin_name=coin_name, url=url, show=True)
+        ws_connection_class(coin_name=coin_name, url=url, show=True)
         for coin_name, url in config.tickers
     ]
 

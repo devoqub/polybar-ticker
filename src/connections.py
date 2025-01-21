@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pprint import pprint
 from typing import Type, List
 from itertools import cycle
 
@@ -9,6 +10,8 @@ from curl_cffi.requests import AsyncSession
 
 import message_handlers as mh
 import config
+
+import aiohttp
 
 
 class WSConnection:
@@ -67,7 +70,7 @@ class WSConnection:
                 while True:
                     # Бесконечно прослушиваем информацию по вебсокетам
                     data = ws.recv()[0].decode("utf-8")
-                    message = await self.__on_message(data)
+                    message = await self._on_message(data)
 
                     # if self.show:
                     #     # TODO move functionality
@@ -79,7 +82,7 @@ class WSConnection:
                 print("Connection failed", flush=True)
                 os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
 
-    async def __on_message(self, message: str):
+    async def _on_message(self, message: str):
         try:
             message = json.loads(message)
             label = self._handler(message=message, coin_name=self.coin_name)
@@ -94,6 +97,48 @@ class WSConnection:
 
     def __str__(self):
         return f"<WSConnection url={self.url} show={self.show}>"
+
+
+class AioHTTPWSConnection(WSConnection):
+
+    async def listen_ws(self):
+        """Прослушиваем соединение по WebSocket"""
+
+        async with aiohttp.ClientSession() as session:
+            try:
+
+                ws = await self._connect_ws(session)
+
+                # TODO FIX
+                # omg i have no idea how to do it differently
+                if isinstance(self.greeting_event, asyncio.Event):
+                    self.greeting_event.set()
+
+                async with ws:
+                    async for msg in ws:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            data = msg.data
+                            message = await self._on_message(data)
+
+                        await asyncio.sleep(config.UPDATE_TIME)
+            except asyncio.CancelledError:
+                print("Task was cancelled")
+            except Exception as e:
+                print(f"Connection failed: {e}", flush=True)
+                os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+
+    async def _connect_ws(self, session: aiohttp.ClientSession):
+        """Подключение по WebSocket с повторными попытками"""
+        attempt = 0
+        while attempt <= self.retries:
+            try:
+                ws = await session.ws_connect(self.url, timeout=self.retry_timeout)
+                return ws
+            except aiohttp.ClientError:
+                attempt += 1
+                if attempt >= self.retries:
+                    raise
+                await asyncio.sleep(self.retry_timeout)
 
 
 banana = 105183817431742844
