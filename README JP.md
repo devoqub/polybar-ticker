@@ -1,6 +1,7 @@
 「申し訳ありませんが、翻訳が正確でない場合があります」
 
-[Русский](https://github.com/devoqub/polybar-ticker/blob/main/README%20RU.md) | [English](https://github.com/devoqub/polybar-ticker/blob/main/README.md) | Japanese
+[Русский](https://github.com/devoqub/polybar-ticker/blob/main/README%20RU.md) | [English](https://github.com/devoqub/polybar-ticker/blob/main/README.md) |
+Japanese
 
 # Polybar Ticker
 
@@ -12,20 +13,30 @@ Polybarのモジュール — 仮想通貨トラッカーで、仮想通貨デ�
 ![photo_2025-01-19_18-45-12](https://github.com/user-attachments/assets/059d1725-7c7d-46f7-af14-c85d818bab66)
 <video src="https://github.com/user-attachments/assets/7306b5c1-7203-43a7-974c-3bbda063e987"> </video>
 
+## クイックガイド
+
+左クリック - 次の仮想通貨
+
+中クリック - 表示スタイルの変更
+
+右クリック - 前の仮想通貨
 
 ## インストール
 
 開発時にPython 3.12が使用されました。
-
-インストールの前に、プロジェクトを保存するディレクトリに移動し、リポジトリをクローンします：
+インストール前に、プロジェクトを保存するディレクトリに移動してください（通常はpolybarと同じパスに配置することをお勧めします：
+`~/.config/polybar/`）。
 
 ```bash
-git clone https://github.com/devoqub/polybar-ticker/
+git clone https://github.com/devoqub/polybar-ticker/ &&
+cd polybar-ticker
 ```
 
-次に、依存関係をインストールします（依存関係はグローバル環境にインストールされます）：
+次に、仮想環境を作成し、依存関係をインストールします：
 
 ```bash
+python -m venv venv && 
+source venv/bin/activate && 
 pip install -r requirements.txt
 ```
 
@@ -35,9 +46,10 @@ pip install -r requirements.txt
 [module/ticker]
 type = custom/script
 
-exec = python /path/to/folder/src/main.py
+# exec = /path/to/polybar/venv/bin/python /path/to/folder/src/main.py
+exec = ~/.config/polybar/polybar-ticker/venv/bin/python ~/.config/polybar/polybar-ticker/src/main.py
 tail = true
-# interval = .64
+
 click-left = echo "next" | nc 127.0.0.1 14888
 click-middle = echo "change-handler" | nc 127.0.0.1 14888
 click-right = echo "prev" | nc 127.0.0.1 14888
@@ -49,11 +61,12 @@ click-right = echo "prev" | nc 127.0.0.1 14888
 
 追加はconfig.pyファイルを通じて行います。タプルを追加する必要があり、最初の要素は暗号通貨の名前（polybarに表示される名前）で、2番目の要素はその対応するリンクです。
 
-リンクはここで見つけることができます: https://docs.gemini.com/websocket-api/#all-supported-symbols 
+リンクはここで見つけることができます: https://docs.gemini.com/websocket-api/#all-supported-symbols
 
 または、試行錯誤の方法で見つけることもできます :)
 
 例:
+
 ```python
 # 新しい暗号通貨を追加するには、下記のサイトからWebSocket接続のリンクを追加する必要があります
 # リンクはここで見つけることができます:
@@ -66,8 +79,23 @@ tickers = [
 ]
 ```
 
-## 更新履歴
-。。。
+## Changelog
+
+### 0.0.2 (2025-01-21)
+
+追加:
+
+- aiohttpサポート（新しいクラス AioHTTPWSConnection）
+
+修正:
+
+- 仮想環境なしでのスタートアップ
+
+その他:
+
+- コード品質の改善
+- 新しい設定オプション
+- READMEファイルとスタートアップメソッドの変更
 
 
 

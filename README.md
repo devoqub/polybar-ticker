@@ -25,20 +25,22 @@ Right click - prev crypto
 
 ## Installation
 Dependencies:
-- curl_cffi
+- curl_cffi / aiohttp 
 - psutil
 
 Python 3.12 was used during development.
-
-Before installation, navigate to the directory where the project will be stored, then clone the repository:
+Before installation, navigate to the directory where the project will be stored (it is recommended to place it in the same path as polybar, typically ~/.config/polybar/).
 
 ```bash
-git clone https://github.com/devoqub/polybar-ticker/
+git clone https://github.com/devoqub/polybar-ticker/ &&
+cd polybar-ticker
 ```
 
-Next, install the dependencies (Note that dependencies are installed in the global environment):
+Next, create a virtual env and install the dependencies:
 
 ```bash
+python -m venv venv && 
+source venv/bin/activate && 
 pip install -r requirements.txt
 ```
 
@@ -48,9 +50,10 @@ Insert this into your polybar config:
 [module/ticker]
 type = custom/script
 
-exec = python /path/to/folder/src/main.py
+# exec = /path/to/polybar/venv/bin/python /path/to/folder/src/main.py
+exec = ~/.config/polybar/polybar-ticker/venv/bin/python ~/.config/polybar/polybar-ticker/src/main.py
 tail = true
-# interval = .64
+
 click-left = echo "next" | nc 127.0.0.1 14888
 click-middle = echo "change-handler" | nc 127.0.0.1 14888
 click-right = echo "prev" | nc 127.0.0.1 14888
@@ -82,5 +85,14 @@ tickers = [
 
 
 ## Changelog
-...
+### 0.0.2 (2025-01-21)
+Added:
+- aiohttp support (new class AioHTTPWSConnection)
 
+Fixed:
+- startup without virtual env
+
+Other:
+- code quality
+- new config option 
+- changed README file and startup method
