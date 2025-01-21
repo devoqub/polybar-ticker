@@ -1,9 +1,15 @@
+import argparse
+import asyncio
+import signal
+import psutil
 import fcntl
 import os
-import signal
 
 import config
-import psutil
+from connections import (
+    AioHTTPWSConnection,
+    WSConnection
+)
 
 
 def kill_pid_from_file():
@@ -51,3 +57,38 @@ def kill_process_by_port(port):
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     print(f"Процесс, использующий порт {port}, не найден.")
+
+
+async def greeting(event: asyncio.Event):
+    """Greeting message, just for fun"""
+
+    try:
+        while not event.is_set():
+            print("", flush=True)
+            await asyncio.sleep(config.BLINK_KAOMOJI_REPEAT_TIME)
+            print(config.BLINK_KAOMOJI, flush=True)
+            await asyncio.sleep(config.BLINK_KAOMOJI_REPEAT_TIME)
+    except asyncio.CancelledError:
+        pass
+
+
+def init_parser():
+    """Argparse init"""
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", help="Enable Debug mode", action="store_true")
+    parser.add_argument("--cli", help="Use display for CLI interface (Future)", action="store_true")
+
+    return parser
+
+
+def get_ws_connection_class(method: str):
+    methods = {
+        "aiohttp": AioHTTPWSConnection,
+        "curl_cffi": WSConnection
+    }
+
+    if method in methods:
+        return methods[method]
+    else:
+        raise ValueError(f"Unknown method {method}")

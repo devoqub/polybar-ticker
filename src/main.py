@@ -7,51 +7,12 @@ import utils
 import config
 import actions
 import message_handlers as mh
-from connections import (
-    AioHTTPWSConnection,
-    WSConnection,
-    ConnectionManager,
-)
-
-
-async def greeting(event: asyncio.Event):
-    """Greeting message, just for fun"""
-
-    try:
-        while not event.is_set():
-            print("", flush=True)
-            await asyncio.sleep(config.BLINK_KAOMOJI_REPEAT_TIME)
-            print(config.BLINK_KAOMOJI, flush=True)
-            await asyncio.sleep(config.BLINK_KAOMOJI_REPEAT_TIME)
-    except asyncio.CancelledError:
-        pass
-
-
-def init_parser():
-    """Argparse init"""
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--debug", help="Enable Debug mode", action="store_true")
-    parser.add_argument("--cli", help="Use display for CLI interface (Future)", action="store_true")
-
-    return parser
-
-
-def get_ws_connection_class(method: str):
-    methods = {
-        "aiohttp": AioHTTPWSConnection,
-        "curl_cffi": WSConnection
-    }
-
-    if method in methods:
-        return methods[method]
-    else:
-        raise ValueError(f"Unknown method {method}")
+from connections import ConnectionManager
 
 
 async def main():
     # Initialize and get arguments
-    args = init_parser().parse_args()
+    args = utils.init_parser().parse_args()
 
     # During debugging, it won't kill another running polybar-ticker (a.k.a. the ticker)
     # This is needed to modify the source code without interrupting polybar
@@ -68,7 +29,7 @@ async def main():
     # Create a list of connections (tasks) for each pair "coin name - URL".
     # Each item in the list is a WSConnection object initialized with the specified parameters.
 
-    ws_connection_class = get_ws_connection_class(config.METHOD_USE)
+    ws_connection_class = utils.get_ws_connection_class(config.METHOD_USE)
     tasks = [
         ws_connection_class(coin_name=coin_name, url=url, show=True)
         for coin_name, url in config.tickers
@@ -100,7 +61,7 @@ async def main():
     # 2. Start the manager, under the hood it establishes each connection to the resource
     # 3. Start the server for interaction with the ticker
     await asyncio.gather(
-        greeting(greeting_event),
+        utils.greeting(greeting_event),
         manager.start(),
         server.start()
     )
