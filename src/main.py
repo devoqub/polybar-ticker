@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-import asyncio
 import os
-import argparse
+import asyncio
 
 import utils
 import config
 import actions
 import message_handlers as mh
-from connections import ConnectionManager
+from connections import (
+    ConnectionManager,
+    get_ws_connection_class
+)
 
 
 async def main():
@@ -29,7 +31,7 @@ async def main():
     # Create a list of connections (tasks) for each pair "coin name - URL".
     # Each item in the list is a WSConnection object initialized with the specified parameters.
 
-    ws_connection_class = utils.get_ws_connection_class(config.METHOD_USE)
+    ws_connection_class = get_ws_connection_class(config.METHOD_USE)
     tasks = [
         ws_connection_class(coin_name=coin_name, url=url, show=True)
         for coin_name, url in config.tickers
