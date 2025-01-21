@@ -1,17 +1,15 @@
+from itertools import cycle
+from typing import Type, List
 import asyncio
 import json
 import os
-from pprint import pprint
-from typing import Type, List
-from itertools import cycle
 
-import curl_cffi.requests.exceptions
 from curl_cffi.requests import AsyncSession
+import curl_cffi.requests.exceptions
+import aiohttp
 
 import message_handlers as mh
 import config
-
-import aiohttp
 
 
 class WSConnection:
@@ -216,3 +214,31 @@ class ConnectionManager:
 
             # for con in self.connections:
             #     con.set_message_handler(handler)
+
+
+def get_ws_connection_class(method: str) -> Type:
+    """
+    Возвращает класс для работы с WebSocket на основе указанного метода
+
+    Args:
+        method (str): Имя модуля для создания соединений (пример, "aiohttp", "curl_cffi")
+
+    Returns:
+        Type: Класс соединения использующий библиотеку по указанному методу.
+
+    Raises:
+        KeyError: Если метод не поддерживается (читай не найден).
+    """
+
+    methods = {
+        "aiohttp": AioHTTPWSConnection,
+        "curl_cffi": WSConnection
+    }
+
+    if method in methods:
+        return methods[method]
+    else:
+        available_methods = ', '.join(methods.keys())
+        raise KeyError(
+            f"Unknown method {method}. Supported methods are {available_methods}."
+        )

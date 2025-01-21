@@ -6,10 +6,6 @@ import fcntl
 import os
 
 import config
-from connections import (
-    AioHTTPWSConnection,
-    WSConnection
-)
 
 
 def kill_pid_from_file():
@@ -80,15 +76,3 @@ def init_parser():
     parser.add_argument("--cli", help="Use display for CLI interface (Future)", action="store_true")
 
     return parser
-
-
-def get_ws_connection_class(method: str):
-    methods = {
-        "aiohttp": AioHTTPWSConnection,
-        "curl_cffi": WSConnection
-    }
-
-    if method in methods:
-        return methods[method]
-    else:
-        raise ValueError(f"Unknown method {method}")
