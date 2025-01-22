@@ -85,9 +85,7 @@ class WSConnection:
 
     async def _on_message(self, message: str):
         try:
-            message = json.loads(message)
-
-            # api extractor logic
+            message = self.extractor.extract_data(message)
 
             label = self._handler(message=message, coin_name=self.coin_name)
             self.ticker_value = {'coin_name': self.coin_name, 'message': message}

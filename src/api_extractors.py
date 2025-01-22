@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Type
 import json
 
 """Классы для работы с разными поставщиками API"""
@@ -23,6 +23,21 @@ class BaseAPIExtractor(ABC):
 
 
 class GeminiAPIExtractor(BaseAPIExtractor):
-    def extract_data(self, data: Any) -> Any:
+    def extract_data(self, data: str) -> Any:
         data = json.loads(data)
         return data["events"][0]["price"]
+
+
+def get_extractor_class(service: str) -> Type[BaseAPIExtractor]:
+    services = {
+        "gemini": GeminiAPIExtractor,
+        # ...
+    }
+
+    if service in services:
+        return services[service]
+    else:
+        available_services = ', '.join(services.keys())
+        raise KeyError(
+            f"Unknown method {service}. Supported api services are {available_services}."
+        )

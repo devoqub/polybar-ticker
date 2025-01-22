@@ -6,6 +6,7 @@ import utils
 import config
 import actions
 import message_handlers as mh
+from api_extractors import get_extractor_class
 from connections import (
     ConnectionManager,
     get_ws_connection_class
@@ -39,8 +40,9 @@ async def main():
     # Each item in the list is a WSConnection object initialized with the specified parameters.
 
     ws_connection_class = get_ws_connection_class(config.METHOD_USE)
+    extractor = get_extractor_class(config.API_SERVICE)()
     tasks = [
-        ws_connection_class(coin_name=coin_name, url=url, show=True)
+        ws_connection_class(coin_name=coin_name, url=url, show=True, extractor=extractor)
         for coin_name, url in config.tickers
     ]
 

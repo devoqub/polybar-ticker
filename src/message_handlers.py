@@ -17,14 +17,14 @@ class MessageHandler(abc.ABC):
 
 class DefaultMessageHandler(MessageHandler):
     @staticmethod
-    def handle(message: dict, coin_name: str, *args, **kwargs):
-        return f"{coin_name}: ${message['events'][0]['price']}"
+    def handle(message: str, coin_name: str, *args, **kwargs):
+        return f"{coin_name}: ${message}"
 
 
 class CompactMessageHandler(MessageHandler):
     @staticmethod
-    def handle(message: dict, *args, **kwargs):
-        return f"${message['events'][0]['price']}"
+    def handle(message: str, *args, **kwargs):
+        return f"${message}"
 
 
 class DisplayAllTickersMessageHandler(MessageHandler):

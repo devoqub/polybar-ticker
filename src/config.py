@@ -18,7 +18,7 @@ TEMP_PID_PATH = "/tmp/polybar-ticker.pid"
 METHOD_USE = "aiohttp"
 
 #
-FORMAT_RESPONSE = "gemini"
+API_SERVICE = "gemini"
 
 SERVER_PORT: int = 14888
 UPDATE_TIME: float | int = 0.64
