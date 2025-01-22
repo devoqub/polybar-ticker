@@ -106,8 +106,6 @@ class AioHTTPWSConnection(WSConnection):
             try:
 
                 async with await self._connect_ws(session) as ws:
-                    # TODO FIX
-                    # omg i have no idea how to do it differently
                     if isinstance(self.greeting_event, asyncio.Event):
                         self.greeting_event.set()
 
@@ -118,14 +116,6 @@ class AioHTTPWSConnection(WSConnection):
                             message = await self._on_message(data)
 
                         await asyncio.sleep(config.UPDATE_TIME)
-
-                        # async for msg in ws:
-                        #
-                        #     if msg.type == aiohttp.WSMsgType.TEXT:
-                        #         data = msg.data
-                        #         message = await self._on_message(data)
-                        #
-                        #     await asyncio.sleep(config.UPDATE_TIME)
             except asyncio.CancelledError:
                 print("Task was cancelled")
             except Exception as e:

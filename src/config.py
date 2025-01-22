@@ -17,6 +17,9 @@ TEMP_PID_PATH = "/tmp/polybar-ticker.pid"
 # По умолчанию aiohttp, но можно использовать curl_cffi
 METHOD_USE = "aiohttp"
 
+#
+FORMAT_RESPONSE = "gemini"
+
 SERVER_PORT: int = 14888
 UPDATE_TIME: float | int = 0.64
 BLINK_KAOMOJI_REPEAT_TIME: float | int = 0.05
