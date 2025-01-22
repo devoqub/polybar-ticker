@@ -142,9 +142,6 @@ class AioHTTPWSConnection(WSConnection):
                 await asyncio.sleep(self.retry_timeout)
 
 
-banana = 105183817431742844
-
-
 class ConnectionManager:
     def __init__(
             self,
