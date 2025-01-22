@@ -8,14 +8,16 @@ from curl_cffi.requests import AsyncSession
 import curl_cffi.requests.exceptions
 import aiohttp
 
-import message_handlers as mh
 import config
+import message_handlers as mh
+from api_extractors import BaseAPIExtractor
 
 
 class WSConnection:
     def __init__(
             self,
             url: str,
+            extractor: Type[BaseAPIExtractor],
             coin_name="COIN",
             show: bool = False,
             msg_handler: Type[mh.MessageHandler] = mh.DefaultMessageHandler,
@@ -30,8 +32,9 @@ class WSConnection:
         self.retries = 10
         self.retry_timeout = retry_timeout
 
-        self.ticker_value = None
+        self.extractor = extractor
 
+        self.ticker_value = None
         self.greeting_event = kwargs.get("greeting_event", None)
 
     def set_message_handler(self, msg_handler: Type[mh.MessageHandler]):
@@ -83,8 +86,13 @@ class WSConnection:
     async def _on_message(self, message: str):
         try:
             message = json.loads(message)
+
+            # api extractor logic
+
             label = self._handler(message=message, coin_name=self.coin_name)
             self.ticker_value = {'coin_name': self.coin_name, 'message': message}
+
+            # самоуничтожение
             # os.system(f"notify-send 'Crypto' '{label}' -u critical -t 1500")
             return label
 
