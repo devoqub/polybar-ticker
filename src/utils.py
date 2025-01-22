@@ -68,7 +68,7 @@ async def greeting(event: asyncio.Event):
         pass
 
 
-def init_parser():
+def init_parser() -> argparse.ArgumentParser:
     """Argparse init"""
 
     parser = argparse.ArgumentParser()
