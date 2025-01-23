@@ -39,20 +39,20 @@ async def main():
 
     ws_connection_class = get_ws_connection_class(config.METHOD_USE)
     extractor = get_extractor_class(config.API_SERVICE)()
-    tasks = [
+    tasks = (
         ws_connection_class(coin_name=coin_name, url=url, show=True, extractor=extractor)
         for coin_name, url in config.tickers
-    ]
+    )
 
     # Define the list of message handlers,
     # these handlers are used to manage ticker display
     # example: BTC: $104456.34 / $104456.34 / <all tickers> / hidden
-    handlers = [
+    handlers = (
         mh.DefaultMessageHandler,
         mh.CompactMessageHandler,
         mh.DisplayAllTickersMessageHandler,
         mh.HiddenMessageHandler
-    ]
+    )
 
     # The ConnectionManager object manages all connections
     # the greeting_event is passed for synchronizing the hiding of the greeting splash screen greeting()

@@ -1,5 +1,5 @@
 from itertools import cycle
-from typing import Type, List
+from typing import Type, List, Iterable
 import asyncio
 import json
 import os
@@ -154,8 +154,8 @@ class AioHTTPWSConnection(WSConnection):
 class ConnectionManager:
     def __init__(
             self,
-            connections: list[WSConnection] = None,
-            handlers: List[Type[mh.MessageHandler]] = None,
+            connections: Iterable[WSConnection] = None,
+            handlers: Iterable[Type[mh.MessageHandler]] = None,
             *args,
             **kwargs
     ):
