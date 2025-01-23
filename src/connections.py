@@ -60,28 +60,29 @@ class WSConnection:
         """Прослушиваем соединение по WebSocket"""
 
         async with AsyncSession() as session:
-            try:
-                ws = await self._connect_ws(session)
+            while True:
+                try:
+                    ws = await self._connect_ws(session)
 
-                # TODO FIX
-                # omg i have no idea how to do it differently
-                if isinstance(self.greeting_event, asyncio.Event):
-                    self.greeting_event.set()
+                    if isinstance(self.greeting_event, asyncio.Event):
+                        self.greeting_event.set()
 
-                while True:
-                    # Бесконечно прослушиваем информацию по вебсокетам
-                    data = ws.recv()[0].decode("utf-8")
-                    message = await self._on_message(data)
+                    await self._handle_message(ws)
 
-                    # if self.show:
-                    #     # TODO move functionality
-                    #     print(message, flush=True)
-                    await asyncio.sleep(config.UPDATE_TIME)
-            except asyncio.CancelledError:
-                print("Task was cancelled")
-            except Exception as e:
-                print("Connection failed", flush=True)
-                os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                except asyncio.CancelledError:
+                    print("Task was cancelled")
+                except Exception as e:
+                    print("Connection failed", flush=True)
+                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                await asyncio.sleep(1)
+
+    async def _handle_message(self, ws):
+        while True:
+            # Бесконечно прослушиваем информацию по вебсокетам
+            data = ws.recv()[0].decode("utf-8")
+            message = await self._on_message(data)
+
+            await asyncio.sleep(config.UPDATE_TIME)
 
     async def _on_message(self, message: str):
         try:
@@ -104,29 +105,37 @@ class WSConnection:
 
 
 class AioHTTPWSConnection(WSConnection):
+    async def _handle_message(self, ws):
+        while True:
+            msg = await ws.receive()
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                data = msg.data
+                message = await self._on_message(data)
+            elif msg.type in (aiohttp.WSMsgType.ERROR, aiohttp.WSMsgType.CLOSED):
+                break
+
+            await asyncio.sleep(config.UPDATE_TIME)
 
     async def listen_ws(self):
         """Прослушиваем соединение по WebSocket"""
 
         async with aiohttp.ClientSession() as session:
-            try:
+            while True:
+                try:
 
-                async with await self._connect_ws(session) as ws:
-                    if isinstance(self.greeting_event, asyncio.Event):
-                        self.greeting_event.set()
+                    async with await self._connect_ws(session) as ws:
+                        if isinstance(self.greeting_event, asyncio.Event):
+                            self.greeting_event.set()
 
-                    while True:
-                        msg = await ws.receive()
-                        if msg.type == aiohttp.WSMsgType.TEXT:
-                            data = msg.data
-                            message = await self._on_message(data)
+                        await self._handle_message(ws)
 
-                        await asyncio.sleep(config.UPDATE_TIME)
-            except asyncio.CancelledError:
-                print("Task was cancelled")
-            except Exception as e:
-                print(f"Connection failed: {e}", flush=True)
-                os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                except asyncio.CancelledError:
+                    print("Task was cancelled")
+                except Exception as e:
+                    print(f"Connection failed: {e}", flush=True)
+                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+
+                await asyncio.sleep(1)
 
     async def _connect_ws(self, session: aiohttp.ClientSession):
         """Подключение по WebSocket с повторными попытками"""
@@ -150,7 +159,7 @@ class ConnectionManager:
             *args,
             **kwargs
     ):
-        self.connections = [] or connections
+        self.connections = connections or []
         self.connection_cycle = cycle(self.connections)
         self.active = None
         self.handlers = cycle(handlers or [mh.DefaultMessageHandler])
@@ -174,12 +183,11 @@ class ConnectionManager:
 
     async def start(self):
         for con in self.connections:
-            con.show = False
             con.greeting_event = self.greeting_event
 
         task = asyncio.create_task(self.display_value())
         self.active = self.connections[0]
-        # self.active.show = True
+
         await asyncio.gather(*[con.listen_ws() for con in self.connections])
 
     async def display_active(self):
