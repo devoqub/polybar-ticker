@@ -7,16 +7,14 @@ import config
 import actions
 import message_handlers as mh
 from api_extractors import get_extractor_class
-from connections import (
-    ConnectionManager,
-    get_ws_connection_class
-)
+from connections import ConnectionManager, get_ws_connection_class
 
 
 # TODO
 #  Миддлвари для расширения функционала
 #  Написать подробную документацию
 #  !!!!!!!Добавить тесты
+
 
 async def main():
     # Initialize and get arguments
@@ -39,10 +37,12 @@ async def main():
 
     ws_connection_class = get_ws_connection_class(config.METHOD_USE)
     extractor = get_extractor_class(config.API_SERVICE)()
-    tasks = (
-        ws_connection_class(coin_name=coin_name, url=url, show=True, extractor=extractor)
+    tasks = [
+        ws_connection_class(
+            coin_name=coin_name, url=url, show=True, extractor=extractor
+        )
         for coin_name, url in config.tickers
-    )
+    ]
 
     # Define the list of message handlers,
     # these handlers are used to manage ticker display
@@ -51,13 +51,15 @@ async def main():
         mh.DefaultMessageHandler,
         mh.CompactMessageHandler,
         mh.DisplayAllTickersMessageHandler,
-        mh.HiddenMessageHandler
+        mh.HiddenMessageHandler,
     )
 
     # The ConnectionManager object manages all connections
     # the greeting_event is passed for synchronizing the hiding of the greeting splash screen greeting()
     greeting_event = asyncio.Event()
-    manager = ConnectionManager(connections=tasks, handlers=handlers, greeting_event=greeting_event)
+    manager = ConnectionManager(
+        connections=tasks, handlers=handlers, greeting_event=greeting_event
+    )
 
     # CommandServer is responsible for managing actions (read: actions) and interactions through Polybar.
     # example: *clicking on a ticker in polybar* -> *ConnectionManager executes an action*
@@ -70,9 +72,7 @@ async def main():
     # 2. Start the manager, under the hood it establishes each connection to the resource
     # 3. Start the server for interaction with the ticker
     await asyncio.gather(
-        utils.greeting(greeting_event),
-        manager.start(),
-        server.start()
+        utils.greeting(greeting_event), manager.start(), server.start()
     )
 
 
