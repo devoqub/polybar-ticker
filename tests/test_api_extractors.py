@@ -42,3 +42,16 @@ class TestGeminiAPIExtractor(unittest.TestCase):
         input_data = json.dumps({"events": [{}]})
         with self.assertRaises(ValueError):
             self.extractor.extract_data(input_data)
+
+
+class TestGetExtractorClass(unittest.TestCase):
+    def test_get_extractor_class(self):
+        self.assertEqual(get_extractor_class("gemini"), GeminiAPIExtractor)
+
+    def test_get_extractor_unknown_class(self):
+        service = "koda"
+
+        with self.assertRaises(KeyError) as context:
+            get_extractor_class(service)
+
+        self.assertIn(f"Unknown method {service}. Supported api services are", str(context.exception))
