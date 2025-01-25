@@ -43,3 +43,22 @@ class TestMessageFormatter(unittest.TestCase):
         result = HiddenMessageFormatter.handle()
         self.assertEqual(result, expected)
 
+    def test_display_all_tickers_message_formatter_empty(self):
+        connections = []
+        expected = ""
+        result = DisplayAllTickersMessageFormatter.handle(connections)
+        self.assertEqual(result, expected)
+
+    def test_default_message_formatter_with_none(self):
+        message = None
+        coin_name = "BTC"
+        expected = ""
+        result = DefaultMessageFormatter.handle(message, coin_name)
+        self.assertEqual(result, expected)
+
+    def test_compact_message_formatter_with_none(self):
+        message = None
+        expected = ""
+        result = CompactMessageFormatter.handle(message)
+        self.assertEqual(result, expected)
+
