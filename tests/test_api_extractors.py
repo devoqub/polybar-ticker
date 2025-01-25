@@ -35,10 +35,10 @@ class TestGeminiAPIExtractor(unittest.TestCase):
     def test_extract_invalid_data(self):
         invalid_input = "youfoundme"
 
-        with self.assertRaises(json.JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.extractor.extract_data(invalid_input)
 
     def test_extract_data_missing_price(self):
         input_data = json.dumps({"events": [{}]})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ValueError):
             self.extractor.extract_data(input_data)

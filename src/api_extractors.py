@@ -24,8 +24,12 @@ class BaseAPIExtractor(ABC):
 
 class GeminiAPIExtractor(BaseAPIExtractor):
     def extract_data(self, data: str) -> Any:
-        data = json.loads(data)
-        return data["events"][0]["price"]
+        try:
+            data = json.loads(data)
+            price = data["events"][0]["price"]
+            return price
+        except (KeyError, IndexError, json.JSONDecodeError) as e:
+            raise ValueError(f"Invalid data format: {e}")
 
 
 def get_extractor_class(service: str) -> Type[BaseAPIExtractor]:
