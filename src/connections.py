@@ -20,12 +20,12 @@ class WSConnection:
             extractor: Type[BaseAPIExtractor],
             coin_name="COIN",
             show: bool = False,
-            msg_handler: Type[mh.MessageFormatter] = mh.DefaultMessageFormatter,
+            msg_formatter: Type[mh.MessageFormatter] = mh.DefaultMessageFormatter,
             retry_timeout: int = 1,
             *args,
             **kwargs,
     ):
-        self._handler: Type[mh.MessageFormatter.handle] = msg_handler.handle
+        self._formatter: Type[mh.MessageFormatter.handle] = msg_formatter.handle
         self.url = url
         self.coin_name = coin_name
         self.show = show
@@ -37,11 +37,11 @@ class WSConnection:
         self.ticker_value = None
         self.greeting_event = kwargs.get("greeting_event", None)
 
-    def set_message_handler(self, msg_handler: Type[mh.MessageFormatter]):
+    def set_message_formatter(self, msg_formatter: Type[mh.MessageFormatter]):
         """Меняем метод отображения тикера"""
-        if not issubclass(msg_handler, mh.MessageFormatter):
+        if not issubclass(msg_formatter, mh.MessageFormatter):
             raise ValueError("Handler must be an instance of MessageHandler")
-        self._handler = msg_handler.handle
+        self._formatter = msg_formatter.handle
 
     async def _connect_ws(self, session: AsyncSession):
         """Подключение по WebSocket с повторными попытками"""
@@ -88,7 +88,7 @@ class WSConnection:
         try:
             message = self.extractor.extract_data(message)
 
-            label = self._handler(message=message, coin_name=self.coin_name)
+            label = self._formatter(message=message, coin_name=self.coin_name)
             self.ticker_value = {'coin_name': self.coin_name, 'message': message}
 
             # самоуничтожение
@@ -155,15 +155,15 @@ class ConnectionManager:
     def __init__(
             self,
             connections: Iterable[WSConnection] = None,
-            handlers: Iterable[Type[mh.MessageFormatter]] = None,
+            formatters: Iterable[Type[mh.MessageFormatter]] = None,
             *args,
             **kwargs
     ):
         self.connections = connections or []
         self.connection_cycle = cycle(self.connections)
         self.active = None
-        self.handlers = cycle(handlers or [mh.DefaultMessageFormatter])
-        self.handler = next(self.handlers)
+        self.formatters = cycle(formatters or [mh.DefaultMessageFormatter])
+        self.formatter = next(self.formatters)
         self.greeting_event = kwargs.get("greeting_event", None)
 
     async def display_value(self):
@@ -174,12 +174,12 @@ class ConnectionManager:
                 # if isinstance(self.handler, mh.EveryMessageHandler):
                 #     print(self.handler.handle(connections=self.connections), flush=True)
                 # else:
-                label = self.handler.handle(**self.active.ticker_value, connections=self.connections)
+                label = self.formatter.handle(**self.active.ticker_value, connections=self.connections)
                 print(label, flush=True)
             await asyncio.sleep(config.UPDATE_TIME)
 
-    async def __get_next_handler(self):
-        return next(self.handlers)
+    async def __get_next_formatter(self):
+        return next(self.formatters)
 
     async def start(self):
         for con in self.connections:
@@ -214,11 +214,11 @@ class ConnectionManager:
         self.active = self.connections[cur_index]
         self.active.show = True
 
-    async def change_message_handler(self):
-        handler = await self.__get_next_handler()
+    async def change_message_formatter(self):
+        formatter = await self.__get_next_formatter()
 
-        if handler:
-            self.handler = handler
+        if formatter:
+            self.formatter = formatter
 
             # for con in self.connections:
             #     con.set_message_handler(handler)

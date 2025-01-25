@@ -37,17 +37,17 @@ async def main():
 
     ws_connection_class = get_ws_connection_class(config.METHOD_USE)
     extractor = get_extractor_class(config.API_SERVICE)()
-    tasks = [
+    connections = [
         ws_connection_class(
             coin_name=coin_name, url=url, show=True, extractor=extractor
         )
         for coin_name, url in config.tickers
     ]
 
-    # Define the list of message handlers,
-    # these handlers are used to manage ticker display
+    # Define the list of message formatters,
+    # these formatters are used to manage ticker display
     # example: BTC: $104456.34 / $104456.34 / <all tickers> / hidden
-    handlers = (
+    formatters = (
         mh.DefaultMessageFormatter,
         mh.CompactMessageFormatter,
         mh.DisplayAllTickersMessageFormatter,
@@ -58,7 +58,7 @@ async def main():
     # the greeting_event is passed for synchronizing the hiding of the greeting splash screen greeting()
     greeting_event = asyncio.Event()
     manager = ConnectionManager(
-        connections=tasks, handlers=handlers, greeting_event=greeting_event
+        connections=connections, formatters=formatters, greeting_event=greeting_event
     )
 
     # CommandServer is responsible for managing actions (read: actions) and interactions through Polybar.

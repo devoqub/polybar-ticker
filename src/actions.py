@@ -19,7 +19,7 @@ class CommandServer:
             elif command == "prev":
                 await self.manager.prev_connection()
             elif command == "change-handler":
-                await self.manager.change_message_handler()
+                await self.manager.change_message_formatter()
 
             writer.write(b"OK\n")
             await writer.drain()
