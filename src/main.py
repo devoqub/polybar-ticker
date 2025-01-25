@@ -5,7 +5,7 @@ import asyncio
 import utils
 import config
 import actions
-import message_handlers as mh
+import message_formatters as mh
 from api_extractors import get_extractor_class
 from connections import ConnectionManager, get_ws_connection_class
 
@@ -48,10 +48,10 @@ async def main():
     # these handlers are used to manage ticker display
     # example: BTC: $104456.34 / $104456.34 / <all tickers> / hidden
     handlers = (
-        mh.DefaultMessageHandler,
-        mh.CompactMessageHandler,
-        mh.DisplayAllTickersMessageHandler,
-        mh.HiddenMessageHandler,
+        mh.DefaultMessageFormatter,
+        mh.CompactMessageFormatter,
+        mh.DisplayAllTickersMessageFormatter,
+        mh.HiddenMessageFormatter,
     )
 
     # The ConnectionManager object manages all connections

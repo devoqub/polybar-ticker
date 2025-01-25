@@ -9,7 +9,7 @@ import curl_cffi.requests.exceptions
 import aiohttp
 
 import config
-import message_handlers as mh
+import message_formatters as mh
 from api_extractors import BaseAPIExtractor
 
 
@@ -20,12 +20,12 @@ class WSConnection:
             extractor: Type[BaseAPIExtractor],
             coin_name="COIN",
             show: bool = False,
-            msg_handler: Type[mh.MessageHandler] = mh.DefaultMessageHandler,
+            msg_handler: Type[mh.MessageFormatter] = mh.DefaultMessageFormatter,
             retry_timeout: int = 1,
             *args,
             **kwargs,
     ):
-        self._handler: Type[mh.MessageHandler.handle] = msg_handler.handle
+        self._handler: Type[mh.MessageFormatter.handle] = msg_handler.handle
         self.url = url
         self.coin_name = coin_name
         self.show = show
@@ -37,9 +37,9 @@ class WSConnection:
         self.ticker_value = None
         self.greeting_event = kwargs.get("greeting_event", None)
 
-    def set_message_handler(self, msg_handler: Type[mh.MessageHandler]):
+    def set_message_handler(self, msg_handler: Type[mh.MessageFormatter]):
         """Меняем метод отображения тикера"""
-        if not issubclass(msg_handler, mh.MessageHandler):
+        if not issubclass(msg_handler, mh.MessageFormatter):
             raise ValueError("Handler must be an instance of MessageHandler")
         self._handler = msg_handler.handle
 
@@ -155,14 +155,14 @@ class ConnectionManager:
     def __init__(
             self,
             connections: Iterable[WSConnection] = None,
-            handlers: Iterable[Type[mh.MessageHandler]] = None,
+            handlers: Iterable[Type[mh.MessageFormatter]] = None,
             *args,
             **kwargs
     ):
         self.connections = connections or []
         self.connection_cycle = cycle(self.connections)
         self.active = None
-        self.handlers = cycle(handlers or [mh.DefaultMessageHandler])
+        self.handlers = cycle(handlers or [mh.DefaultMessageFormatter])
         self.handler = next(self.handlers)
         self.greeting_event = kwargs.get("greeting_event", None)
 
