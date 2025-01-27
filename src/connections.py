@@ -83,6 +83,8 @@ class WSConnection:
             message = await self._on_message(data)
 
             await asyncio.sleep(config.UPDATE_TIME)
+            # Сбрасываем накопившиеся сообщения
+            ws.recv()
 
     async def _on_message(self, message: str):
         try:
@@ -115,6 +117,8 @@ class AioHTTPWSConnection(WSConnection):
                 break
 
             await asyncio.sleep(config.UPDATE_TIME)
+            # Сбрасываем накопившиеся сообщения
+            await ws.reveive()
 
     async def listen_ws(self):
         """Прослушиваем соединение по WebSocket"""
