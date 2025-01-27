@@ -3,6 +3,10 @@ from typing import Type, List, Iterable
 import asyncio
 import json
 import os
+from abc import (
+    ABC,
+    abstractmethod
+)
 
 from curl_cffi.requests import AsyncSession
 import curl_cffi.requests.exceptions
@@ -11,6 +15,21 @@ import aiohttp
 import config
 import message_formatters as mh
 from api_extractors import BaseAPIExtractor
+
+
+class BaseWSConnection(ABC):
+    def __init__(self, url: str, retries: int, retry_timeout: int | float):
+        self.url = url
+        self.retries = retries
+        self.retry_timeout = retry_timeout
+
+    @abstractmethod
+    async def connect(self):
+        pass
+
+    @abstractmethod
+    async def listen(self):
+        pass
 
 
 class WSConnection:
