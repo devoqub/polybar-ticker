@@ -17,7 +17,7 @@ TEMP_PID_PATH = "/tmp/polybar-ticker.pid"
 # По умолчанию aiohttp, но можно использовать curl_cffi
 LIBRARY_USE = "aiohttp"
 
-#
+# Выбор сервиса для получения данных по WebSocket`ам, пока доступен только gemini.
 API_SERVICE = "gemini"
 
 SERVER_PORT: int = 14888
