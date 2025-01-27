@@ -39,7 +39,7 @@ async def main():
     extractor = get_extractor_class(config.API_SERVICE)()
     connections = [
         ws_connection_class(
-            coin_name=coin_name, url=url, show=True, extractor=extractor
+            coin_name=coin_name, url=url, extractor=extractor
         )
         for coin_name, url in config.tickers
     ]
