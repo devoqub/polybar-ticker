@@ -20,7 +20,7 @@ class BaseWSConnection(ABC):
             self,
             url: str,
             coin_name: str,
-            extractor: Type[BaseAPIExtractor()],
+            extractor: Type[BaseAPIExtractor],
             retries: int = 10,
             retry_timeout: int | float = 1,
             retry_connect_timeout: int | float | None = None,
@@ -169,16 +169,12 @@ class ConnectionManager:
         self.formatter = next(self.formatters)
         self.greeting_event = kwargs.get("greeting_event", None)
 
-    async def display_value(self):
-        # TODO Пофиксить, переписать, уничтожить
-
+    async def display_ticker(self):
         while True:
             if self.active.ticker_value:
-                # if isinstance(self.handler, mh.EveryMessageHandler):
-                #     print(self.handler.handle(connections=self.connections), flush=True)
-                # else:
                 label = self.formatter.handle(**self.active.ticker_value, connections=self.connections)
                 print(label, flush=True)
+
             await asyncio.sleep(config.UPDATE_TIME)
 
     async def __get_next_formatter(self):
@@ -188,14 +184,10 @@ class ConnectionManager:
         for con in self.connections:
             con.greeting_event = self.greeting_event
 
-        task = asyncio.create_task(self.display_value())
+        task = asyncio.create_task(self.display_ticker())
         self.active = self.connections[0]
 
         await asyncio.gather(*[con.listen() for con in self.connections])
-
-    async def display_active(self):
-        # TODO Rich display (FUTURE)
-        ...
 
     async def next_connection(self):
         if self.active:
@@ -222,9 +214,6 @@ class ConnectionManager:
 
         if formatter:
             self.formatter = formatter
-
-            # for con in self.connections:
-            #     con.set_message_handler(handler)
 
 
 def get_ws_connection_class(method: str) -> Type:
