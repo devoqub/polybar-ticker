@@ -16,6 +16,11 @@ from api_extractors import BaseAPIExtractor
 
 
 class BaseWSConnection(ABC):
+    """
+    Базовый абстрактный класс для подключения к WebSocket. Содержит общую логику и абстрактные методы
+    для работы с вебсокетами, которые должны быть реализованы в подклассах.
+    """
+
     def __init__(
             self,
             url: str,
@@ -27,6 +32,19 @@ class BaseWSConnection(ABC):
             *args,
             **kwargs,
     ):
+        """
+        Инициализация базового класса WebSocket подключения.
+
+        :param url: URL WebSocket сервера.
+        :param coin_name: Название криптовалюты.
+        :param extractor: Класс, отвечающий за извлечение данных из сообщений.
+        :param retries: Количество попыток переподключения.
+        :param retry_timeout: Интервал между попытками переподключения.
+        :param retry_connect_timeout: Тайм-аут для попытки соединения с WebSocket.
+        :param args: Дополнительные аргументы.
+        :param kwargs: Дополнительные именованные аргументы.
+        """
+
         self.url = url
         self.retries = retries
         self.retry_timeout = retry_timeout
@@ -39,17 +57,45 @@ class BaseWSConnection(ABC):
 
     @abstractmethod
     async def listen(self):
+        """
+        Метод для начала прослушивания WebSocket сервера.
+        Должен быть реализован в подклассах.
+        """
+
         raise NotImplementedError("This method must be implemented in subclass.")
 
     @abstractmethod
     async def _connect(self, session: Type) -> Type:
+        """
+        Метод для подключения к WebSocket серверу
+        Args:
+            session: Объект сессии
+
+        Returns:
+            Возвращает объект соединения с WebSocket.
+        """
+
         raise NotImplementedError("This method must be implemented in subclass.")
 
     @abstractmethod
-    async def _handle_message(self, ws: Type) -> Type:
+    async def _handle_message(self, ws: Type) -> None:
+        """
+        Метод для обработки сообщений полученных с WS соединения.
+        Должен быть реализован в подклассе.
+
+        Args:
+            ws: Объект соединения с WebSocket.
+        """
+
         raise NotImplementedError("This method must be implemented in subclass.")
 
-    async def _prepare_message(self, message: str):
+    async def _prepare_message(self, message: str) -> None:
+        """
+        Подготовка и обработка входящих сообщений.
+
+        :param message: Полученное сообщение.
+        """
+
         try:
             message = self.extractor.extract_data(data=message)
             self.ticker_value = {'coin_name': self.coin_name, 'message': message}
