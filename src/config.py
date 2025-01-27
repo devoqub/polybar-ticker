@@ -24,8 +24,3 @@ SERVER_PORT: int = 14888
 UPDATE_TIME: float | int = 0.64
 BLINK_KAOMOJI_REPEAT_TIME: float | int = 0.05
 RETRY_CONNECT_TIMEOUT: float | int = 4
-
-# TODO:
-#  добавить класс соединения для работы с tradingview по апи ключу
-#  Добавить соединение использующее aiohttp вместо curl_cffi
-#  добавить тесты

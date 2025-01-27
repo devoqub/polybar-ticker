@@ -1,16 +1,14 @@
 from itertools import cycle
-from typing import Type, List, Iterable
 import asyncio
 import json
 import os
-from abc import (
-    ABC,
-    abstractmethod
-)
+from abc import ABC, abstractmethod
+from typing import Type, Iterable
 
+import aiohttp
 from curl_cffi.requests import AsyncSession
 from curl_cffi.requests.exceptions import CurlError
-import aiohttp
+from curl_cffi.requests.websockets import WebSocket
 
 import config
 import message_formatters as mh
@@ -22,7 +20,7 @@ class BaseWSConnection(ABC):
             self,
             url: str,
             coin_name: str,
-            extractor: Type[BaseAPIExtractor],
+            extractor: Type[BaseAPIExtractor()],
             retries: int = 10,
             retry_timeout: int | float = 1,
             retry_connect_timeout: int | float | None = None,
@@ -51,14 +49,19 @@ class BaseWSConnection(ABC):
     async def _handle_message(self, ws: Type) -> Type:
         raise NotImplementedError("This method must be implemented in subclass.")
 
-    @abstractmethod
     async def _prepare_message(self, message: str):
-        raise NotImplementedError("This method must be implemented in subclass.")
+        try:
+            message = self.extractor.extract_data(data=message)
+            self.ticker_value = {'coin_name': self.coin_name, 'message': message}
 
+            # самоуничтожение
+            # os.system(f"notify-send 'Polybar Ticker' '{label}' -u critical -t 2000")
 
-class CurlCffiWSConnection(BaseWSConnection):
-    async def start_listen(self):
-        pass
+        except json.JSONDecodeError:
+            # Ничего не выводим, при подключении часто передается только часть данных, так что это нормально.
+            print("", flush=True)
+        except Exception as e:
+            print(f"Error: {e}")
 
 
 class AioHTTPWSConnection(BaseWSConnection):
@@ -93,21 +96,6 @@ class AioHTTPWSConnection(BaseWSConnection):
 
         raise TimeoutError("Не удалось подключится к серверу.")
 
-    async def _prepare_message(self, message: str):
-        try:
-            message = self.extractor.extract_data(data=message)
-
-            self.ticker_value = {'coin_name': self.coin_name, 'message': message}
-
-            # самоуничтожение
-            # os.system(f"notify-send 'Polybar Ticker' '{label}' -u critical -t 2000")
-
-        except json.JSONDecodeError as e:
-            # Ничего не выводим, при подключении часто передается только часть данных, так что это нормально.
-            print("", flush=True)
-        except Exception as e:
-            print(f"Error: {e}")
-
     async def _handle_message(self, ws: aiohttp.ClientWebSocketResponse) -> None:
         while not ws.closed:
 
@@ -123,29 +111,38 @@ class AioHTTPWSConnection(BaseWSConnection):
             await ws.receive()
 
 
-class WSConnection:
-    def __init__(
-            self,
-            url: str,
-            extractor: Type[BaseAPIExtractor],
-            coin_name="COIN",
-            retry_timeout: int = 1,
-            *args,
-            **kwargs,
-    ):
-        self.url = url
-        self.coin_name = coin_name
-        self.retries = 10
-        self.retry_timeout = retry_timeout
+class CurlCffiWSConnection(BaseWSConnection):
+    async def listen(self):
+        async with AsyncSession() as session:
+            while True:
+                try:
+                    ws = await self._connect(session)
 
-        self.extractor = extractor
+                    if isinstance(self.greeting_event, asyncio.Event):
+                        self.greeting_event.set()
 
-        self.ticker_value = None
-        self.greeting_event = kwargs.get("greeting_event", None)
+                    await self._handle_message(ws)
 
-    async def _connect_ws(self, session: AsyncSession):
-        """Подключение по WebSocket с повторными попытками"""
+                except asyncio.CancelledError:
+                    print("Task was cancelled")
+                except Exception:
+                    print("Connection failed", flush=True)
+                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                await asyncio.sleep(1)
+
+    async def _handle_message(self, ws: WebSocket) -> None:
+        while True:
+            # Бесконечно прослушиваем информацию по вебсокетам
+            message = ws.recv()[0].decode("utf-8")
+            await self._prepare_message(message)
+
+            await asyncio.sleep(config.UPDATE_TIME)
+            # Сбрасываем накопившиеся сообщения
+            ws.recv()
+
+    async def _connect(self, session: AsyncSession) -> WebSocket:
         attempt = 0
+
         while attempt <= self.retries:
             try:
                 ws = await session.ws_connect(self.url, timeout=config.RETRY_CONNECT_TIMEOUT)
@@ -156,61 +153,11 @@ class WSConnection:
                     raise
                 await asyncio.sleep(self.retry_timeout)
 
-    async def listen_ws(self):
-        """Прослушиваем соединение по WebSocket"""
-
-        async with AsyncSession() as session:
-            while True:
-                try:
-                    ws = await self._connect_ws(session)
-
-                    if isinstance(self.greeting_event, asyncio.Event):
-                        self.greeting_event.set()
-
-                    await self._handle_message(ws)
-
-                except asyncio.CancelledError:
-                    print("Task was cancelled")
-                except Exception as e:
-                    print("Connection failed", flush=True)
-                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
-                await asyncio.sleep(1)
-
-    async def _handle_message(self, ws):
-        while True:
-            # Бесконечно прослушиваем информацию по вебсокетам
-            data = ws.recv()[0].decode("utf-8")
-            message = await self._on_message(data)
-
-            await asyncio.sleep(config.UPDATE_TIME)
-            # Сбрасываем накопившиеся сообщения
-            ws.recv()
-
-    async def _on_message(self, message: str):
-        try:
-            message = self.extractor.extract_data(message)
-
-            label = self._formatter(message=message, coin_name=self.coin_name)
-            self.ticker_value = {'coin_name': self.coin_name, 'message': message}
-
-            # самоуничтожение
-            # os.system(f"notify-send 'Crypto' '{label}' -u critical -t 1500")
-            return label
-
-        except json.JSONDecodeError as e:
-            print("", flush=True)
-        except Exception as e:
-            print(f"Error occurred: {e}")
-
-    def __str__(self):
-        return f"<WSConnection url={self.url} show={self.show}>"
-
-
 
 class ConnectionManager:
     def __init__(
             self,
-            connections: Iterable[WSConnection] = None,
+            connections: Iterable[BaseWSConnection] = None,
             formatters: Iterable[Type[mh.MessageFormatter]] = None,
             *args,
             **kwargs
@@ -296,7 +243,7 @@ def get_ws_connection_class(method: str) -> Type:
 
     methods = {
         "aiohttp": AioHTTPWSConnection,
-        "curl_cffi": WSConnection
+        "curl_cffi": CurlCffiWSConnection
     }
 
     if method in methods:
