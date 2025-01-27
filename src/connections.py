@@ -126,8 +126,8 @@ class WSConnection:
 
 
 class AioHTTPWSConnection(WSConnection):
-    async def _handle_message(self, ws):
-        while True:
+    async def _handle_message(self, ws: aiohttp.ClientWebSocketResponse):
+        while not ws.closed:
             msg = await ws.receive()
             if msg.type == aiohttp.WSMsgType.TEXT:
                 data = msg.data
@@ -137,7 +137,7 @@ class AioHTTPWSConnection(WSConnection):
 
             await asyncio.sleep(config.UPDATE_TIME)
             # Сбрасываем накопившиеся сообщения
-            await ws.reveive()
+            await ws.receive()
 
     async def listen_ws(self):
         """Прослушиваем соединение по WebSocket"""
