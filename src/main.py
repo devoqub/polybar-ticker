@@ -35,7 +35,7 @@ async def main():
     # Create a list of connections (tasks) for each pair "coin name - URL".
     # Each item in the list is a WSConnection object initialized with the specified parameters.
 
-    ws_connection_class = get_ws_connection_class(config.METHOD_USE)
+    ws_connection_class = get_ws_connection_class(config.LIBRARY_USE)
     extractor = get_extractor_class(config.API_SERVICE)()
     connections = [
         ws_connection_class(

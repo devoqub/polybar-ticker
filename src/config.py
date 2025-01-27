@@ -15,7 +15,7 @@ TEMP_PID_PATH = "/tmp/polybar-ticker.pid"
 
 # Выбор используемой библиотеки для работы с WebSocket
 # По умолчанию aiohttp, но можно использовать curl_cffi
-METHOD_USE = "aiohttp"
+LIBRARY_USE = "aiohttp"
 
 #
 API_SERVICE = "gemini"
