@@ -18,7 +18,7 @@ class CommandServer:
             data = await reader.read(100)
             command = data.decode().strip()
 
-            await self.commands[command]
+            await self.commands[command]()
 
             writer.write(b"OK\n")
             await writer.drain()
