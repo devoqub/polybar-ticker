@@ -1,4 +1,4 @@
-from user_middlewares import MiddlewareExample
+from src.user_middlewares import MiddlewareExample
 
 # Чтобы добавить новую крипту вам нужно добавить ссылку на вебсокет соединение с сайта ниже
 # Найти связки можно тут:

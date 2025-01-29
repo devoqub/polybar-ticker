@@ -10,10 +10,12 @@ from curl_cffi.requests import AsyncSession
 from curl_cffi.requests.exceptions import CurlError
 from curl_cffi.requests.websockets import WebSocket
 
-import config
-import message_formatters as mh
-from api_extractors import BaseAPIExtractor
-from middleware import MiddlewareManager, enable_middlewares
+from src.api_extractors import BaseAPIExtractor
+from src.middleware import MiddlewareManager, enable_middlewares
+from src import (
+    config,
+    message_formatters as mh,
+)
 
 
 class BaseWSConnection(ABC):

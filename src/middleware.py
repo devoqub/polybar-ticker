@@ -1,7 +1,7 @@
 import functools
 
-import config
-from user_middlewares import MiddlewareExample
+from src import config
+from src.user_middlewares import MiddlewareExample
 
 
 class MiddlewareManager:

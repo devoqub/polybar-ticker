@@ -2,18 +2,14 @@
 import os
 import asyncio
 
-import utils
-import config
-import actions
-import message_formatters as mh
-from api_extractors import get_extractor_class
-from connections import ConnectionManager, get_ws_connection_class
-
-
-# TODO
-#  Миддлвари для расширения функционала
-#  Написать подробную документацию
-#  !!!!!!!Добавить тесты
+from src.api_extractors import get_extractor_class
+from src.connections import ConnectionManager, get_ws_connection_class
+from src import (
+    utils,
+    config,
+    actions,
+    message_formatters as mh
+)
 
 
 async def main():

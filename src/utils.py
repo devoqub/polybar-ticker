@@ -5,7 +5,7 @@ import psutil
 import fcntl
 import os
 
-import config
+from src import config
 
 
 def kill_pid_from_file():
