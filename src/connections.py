@@ -99,8 +99,12 @@ class BaseWSConnection(ABC):
         """
 
         try:
-            message = self.extractor.extract_data(data=message)
-            return {"coin_name": self.coin_name, "message": message}
+            price = self.extractor.extract_data(data=message)
+            data = {"coin_name": self.coin_name, "price": price}
+
+            # TODO middleware
+
+            return data
         except json.JSONDecodeError:
             # Ничего не выводим, при подключении часто передается только часть данных, так что это нормально.
             print("", flush=True)

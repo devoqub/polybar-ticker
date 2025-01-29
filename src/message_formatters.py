@@ -17,18 +17,18 @@ class MessageFormatter(abc.ABC):
 
 class DefaultMessageFormatter(MessageFormatter):
     @staticmethod
-    def handle(message: str, coin_name: str, *args, **kwargs):
-        if message is None or coin_name is None:
+    def handle(coin_name: str, price: str, *args, **kwargs):
+        if price is None or coin_name is None:
             return ""
-        return f"{coin_name}: ${message}"
+        return f"{coin_name}: ${price}"
 
 
 class CompactMessageFormatter(MessageFormatter):
     @staticmethod
-    def handle(message: str, *args, **kwargs):
-        if message is None:
+    def handle(price: str, *args, **kwargs):
+        if price is None:
             return ""
-        return f"${message}"
+        return f"${price}"
 
 
 class DisplayAllTickersMessageFormatter(MessageFormatter):
