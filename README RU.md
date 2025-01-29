@@ -78,6 +78,16 @@ tickers = [
 ]
 ```
 
+## Поддержать разработчика <3
+<img src="https://img.icons8.com/?size=100&id=DEDR1BLPBScO&format=png&color=000000" width=24> USDT TRC20 
+
+TWLA1d9qNZzuikcbhezmp4m5uc4fCiJ4Kr
+
+<img src="https://img.icons8.com/?size=100&id=anv9gQeahNxD&format=png&color=000000" width=20> Monero 
+
+46vDbwch8RHBunMr3sWf7ictdxQWQSdCQTKb99GnwFcx217roD4MVoD9D22SibBGT3CKAKMCocVbRBgtv6rqoaTBGH9VHeo
+
+
 ## Changelog
 ### 0.0.2 (2025-01-21)
 Добавлено:
