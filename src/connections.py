@@ -48,7 +48,9 @@ class BaseWSConnection(ABC):
         self.url = url
         self.retries = retries
         self.retry_timeout = retry_timeout
-        self.retry_connect_timeout = retry_connect_timeout or config.RETRY_CONNECT_TIMEOUT
+        self.retry_connect_timeout = (
+                retry_connect_timeout or config.RETRY_CONNECT_TIMEOUT
+        )
         self.extractor = extractor
         self.coin_name = coin_name
         self.greeting_event = kwargs.get("greeting_event", None)
@@ -89,7 +91,7 @@ class BaseWSConnection(ABC):
 
         raise NotImplementedError("This method must be implemented in subclass.")
 
-    async def _prepare_message(self, message: str) -> None:
+    async def _extract_data(self, message: str) -> dict:
         """
         Подготовка и обработка входящих сообщений.
 
@@ -98,7 +100,8 @@ class BaseWSConnection(ABC):
 
         try:
             message = self.extractor.extract_data(data=message)
-            self.ticker_value = {'coin_name': self.coin_name, 'message': message}
+            # self.ticker_value = {"coin_name": self.coin_name, "message": message}
+            return {"coin_name": self.coin_name, "message": message}
 
             # самоуничтожение
             # os.system(f"notify-send 'Polybar Ticker' '{label}' -u critical -t 2000")
@@ -125,16 +128,22 @@ class AioHTTPWSConnection(BaseWSConnection):
                     print("Task was cancelled")
                 except Exception as e:
                     print(f"Connection failed: {e}", flush=True)
-                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                    os.system(
+                        f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000"
+                    )
 
                 await asyncio.sleep(1)
 
-    async def _connect(self, session: aiohttp.ClientSession) -> aiohttp.ClientWebSocketResponse:
+    async def _connect(
+            self, session: aiohttp.ClientSession
+    ) -> aiohttp.ClientWebSocketResponse:
         attempt = 0
 
         while attempt <= self.retries:
             try:
-                ws = await session.ws_connect(self.url, timeout=self.retry_connect_timeout)
+                ws = await session.ws_connect(
+                    self.url, timeout=self.retry_connect_timeout
+                )
                 return ws
             except aiohttp.ClientError:
                 attempt += 1
@@ -148,7 +157,8 @@ class AioHTTPWSConnection(BaseWSConnection):
             msg = await ws.receive()
             if msg.type == aiohttp.WSMsgType.TEXT:
                 message = msg.data
-                await self._prepare_message(message)
+                data = await self._extract_data(message)
+                self.ticker_value = data
             elif msg.type in (aiohttp.WSMsgType.ERROR, aiohttp.WSMsgType.CLOSED):
                 break
 
@@ -173,14 +183,17 @@ class CurlCffiWSConnection(BaseWSConnection):
                     print("Task was cancelled")
                 except Exception:
                     print("Connection failed", flush=True)
-                    os.system(f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000")
+                    os.system(
+                        f"notify-send 'Polybar Ticker' 'Cannot connect to {self.coin_name}' -t 5000"
+                    )
                 await asyncio.sleep(1)
 
     async def _handle_message(self, ws: WebSocket) -> None:
         while True:
             # Бесконечно прослушиваем информацию по вебсокетам
             message = ws.recv()[0].decode("utf-8")
-            await self._prepare_message(message)
+            data = await self._extract_data(message)
+            self.ticker_value = data
 
             await asyncio.sleep(config.UPDATE_TIME)
             # Сбрасываем накопившиеся сообщения
@@ -191,7 +204,9 @@ class CurlCffiWSConnection(BaseWSConnection):
 
         while attempt <= self.retries:
             try:
-                ws = await session.ws_connect(self.url, timeout=config.RETRY_CONNECT_TIMEOUT)
+                ws = await session.ws_connect(
+                    self.url, timeout=config.RETRY_CONNECT_TIMEOUT
+                )
                 return ws
             except CurlError:
                 attempt += 1
@@ -206,7 +221,7 @@ class ConnectionManager:
             connections: Iterable[BaseWSConnection] = None,
             formatters: Iterable[Type[mh.MessageFormatter]] = None,
             *args,
-            **kwargs
+            **kwargs,
     ):
         self.connections = connections or []
         self.connection_cycle = cycle(self.connections)
@@ -218,7 +233,9 @@ class ConnectionManager:
     async def display_ticker(self):
         while True:
             if self.active.ticker_value:
-                label = self.formatter.handle(**self.active.ticker_value, connections=self.connections)
+                label = self.formatter.handle(
+                    **self.active.ticker_value, connections=self.connections
+                )
                 print(label, flush=True)
 
             await asyncio.sleep(config.UPDATE_TIME)
@@ -276,15 +293,12 @@ def get_ws_connection_class(method: str) -> Type:
         KeyError: Если метод не поддерживается (читай не найден).
     """
 
-    methods = {
-        "aiohttp": AioHTTPWSConnection,
-        "curl_cffi": CurlCffiWSConnection
-    }
+    methods = {"aiohttp": AioHTTPWSConnection, "curl_cffi": CurlCffiWSConnection}
 
     if method in methods:
         return methods[method]
     else:
-        available_methods = ', '.join(methods.keys())
+        available_methods = ", ".join(methods.keys())
         raise KeyError(
             f"Unknown method {method}. Supported methods are {available_methods}."
         )
