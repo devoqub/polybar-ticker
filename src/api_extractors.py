@@ -11,8 +11,9 @@ class BaseAPIExtractor(ABC):
     Служит шаблоном для реализации методов извлечения данных.
     """
 
+    @staticmethod
     @abstractmethod
-    def extract_data(self, data: Any) -> Any:
+    def extract_data(data: Any) -> Any:
         """
         Метод для извлечения данных о криптовалюте из переданного объекта.
         """
@@ -23,7 +24,8 @@ class BaseAPIExtractor(ABC):
 
 
 class GeminiAPIExtractor(BaseAPIExtractor):
-    def extract_data(self, data: str) -> Any:
+    @staticmethod
+    def extract_data(data: str) -> Any:
         try:
             data = json.loads(data)
             price = data["events"][0]["price"]

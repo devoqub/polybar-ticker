@@ -100,12 +100,7 @@ class BaseWSConnection(ABC):
 
         try:
             message = self.extractor.extract_data(data=message)
-            # self.ticker_value = {"coin_name": self.coin_name, "message": message}
             return {"coin_name": self.coin_name, "message": message}
-
-            # самоуничтожение
-            # os.system(f"notify-send 'Polybar Ticker' '{label}' -u critical -t 2000")
-
         except json.JSONDecodeError:
             # Ничего не выводим, при подключении часто передается только часть данных, так что это нормально.
             print("", flush=True)
