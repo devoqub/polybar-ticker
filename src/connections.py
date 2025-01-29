@@ -13,6 +13,7 @@ from curl_cffi.requests.websockets import WebSocket
 import config
 import message_formatters as mh
 from api_extractors import BaseAPIExtractor
+from middleware import MiddlewareManager, enable_middlewares
 
 
 class BaseWSConnection(ABC):
@@ -91,6 +92,7 @@ class BaseWSConnection(ABC):
 
         raise NotImplementedError("This method must be implemented in subclass.")
 
+    @enable_middlewares
     async def _extract_data(self, message: str) -> dict:
         """
         Подготовка и обработка входящих сообщений.
@@ -101,8 +103,6 @@ class BaseWSConnection(ABC):
         try:
             price = self.extractor.extract_data(data=message)
             data = {"coin_name": self.coin_name, "price": price}
-
-            # TODO middleware
 
             return data
         except json.JSONDecodeError:
